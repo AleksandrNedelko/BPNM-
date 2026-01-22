@@ -1,0 +1,410 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  id="Definitions_SEO_SUP"
+  targetNamespace="http://example.com/bpmn/seo-sup">
+
+  <bpmn:message id="Message_TaskToSUP" name="Задача в SUP"/>
+  <bpmn:message id="Message_ClarificationRequest" name="Запрос уточнения"/>
+  <bpmn:message id="Message_TaskUpdate" name="Уточнённая задача"/>
+  <bpmn:message id="Message_Result" name="Результат выполнения"/>
+  <bpmn:message id="Message_ReworkRequest" name="Запрос на доработку"/>
+  <bpmn:message id="Message_CloseConfirm" name="Подтверждение закрытия"/>
+
+  <bpmn:collaboration id="Collaboration_SEO_SUP">
+    <bpmn:participant id="Participant_SEO" name="Отдел SEO (постановщик: SEO-менеджер/SEO-специалист)" processRef="Process_SEO"/>
+    <bpmn:participant id="Participant_SUP" name="Отдел SUP (принимающая сторона: SUP/SEO-менеджер)" processRef="Process_SUP"/>
+
+    <bpmn:messageFlow id="MessageFlow_TaskToSUP" name="Постановка задачи" sourceRef="SEO_SendTask" targetRef="SUP_Start_Message"/>
+    <bpmn:messageFlow id="MessageFlow_ClarificationRequest" name="Уточнить" sourceRef="SUP_SendClarificationRequest" targetRef="SEO_Catch_ClarificationRequest"/>
+    <bpmn:messageFlow id="MessageFlow_TaskUpdate" name="Ответ/уточнение" sourceRef="SEO_SendTaskUpdate" targetRef="SUP_Catch_TaskUpdate"/>
+    <bpmn:messageFlow id="MessageFlow_Result" name="Результат" sourceRef="SUP_SendResult" targetRef="SEO_Catch_Result"/>
+    <bpmn:messageFlow id="MessageFlow_ReworkRequest" name="На доработку" sourceRef="SEO_SendReworkRequest" targetRef="SUP_Catch_ReworkRequest"/>
+    <bpmn:messageFlow id="MessageFlow_CloseConfirm" name="Закрытие" sourceRef="SEO_SendCloseConfirm" targetRef="SUP_Catch_CloseConfirm"/>
+  </bpmn:collaboration>
+
+  <bpmn:process id="Process_SEO" name="Постановка и прием результата (SEO)" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_SEO">
+      <bpmn:lane id="Lane_SEO_Main" name="SEO-менеджер / SEO-специалист">
+        <bpmn:flowNodeRef>SEO_Start</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>SEO_CreateTask</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>SEO_SendTask</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>SEO_EventBased_WaitResponse</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>SEO_Catch_ClarificationRequest</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>SEO_ClarifyTask</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>SEO_SendTaskUpdate</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>SEO_Catch_Result</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>SEO_ReviewResult</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>SEO_Gateway_ResultAccepted</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>SEO_SendReworkRequest</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>SEO_SendCloseConfirm</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>SEO_End_Closed</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <bpmn:startEvent id="SEO_Start" name="Нужна задача"/>
+
+    <bpmn:userTask id="SEO_CreateTask" name="Сформировать задачу (описание, KPI, дедлайн, доступы)"/>
+    <bpmn:sendTask id="SEO_SendTask" name="Отправить задачу в SUP" messageRef="Message_TaskToSUP"/>
+
+    <bpmn:eventBasedGateway id="SEO_EventBased_WaitResponse" name="Ждём ответ от SUP"/>
+
+    <bpmn:intermediateCatchEvent id="SEO_Catch_ClarificationRequest" name="Получен запрос уточнения">
+      <bpmn:messageEventDefinition messageRef="Message_ClarificationRequest"/>
+    </bpmn:intermediateCatchEvent>
+
+    <bpmn:userTask id="SEO_ClarifyTask" name="Уточнить задачу / предоставить данные"/>
+    <bpmn:sendTask id="SEO_SendTaskUpdate" name="Отправить уточнённую задачу" messageRef="Message_TaskUpdate"/>
+
+    <bpmn:intermediateCatchEvent id="SEO_Catch_Result" name="Получен результат">
+      <bpmn:messageEventDefinition messageRef="Message_Result"/>
+    </bpmn:intermediateCatchEvent>
+
+    <bpmn:userTask id="SEO_ReviewResult" name="Проверить результат (качество, KPI, соответствие ТЗ)"/>
+    <bpmn:exclusiveGateway id="SEO_Gateway_ResultAccepted" name="Результат принят?"/>
+
+    <bpmn:sendTask id="SEO_SendReworkRequest" name="Вернуть на доработку" messageRef="Message_ReworkRequest"/>
+    <bpmn:sendTask id="SEO_SendCloseConfirm" name="Подтвердить закрытие" messageRef="Message_CloseConfirm"/>
+
+    <bpmn:endEvent id="SEO_End_Closed" name="Задача закрыта"/>
+
+    <bpmn:sequenceFlow id="Flow_SEO_1" sourceRef="SEO_Start" targetRef="SEO_CreateTask"/>
+    <bpmn:sequenceFlow id="Flow_SEO_2" sourceRef="SEO_CreateTask" targetRef="SEO_SendTask"/>
+    <bpmn:sequenceFlow id="Flow_SEO_3" sourceRef="SEO_SendTask" targetRef="SEO_EventBased_WaitResponse"/>
+
+    <bpmn:sequenceFlow id="Flow_SEO_4" sourceRef="SEO_EventBased_WaitResponse" targetRef="SEO_Catch_ClarificationRequest"/>
+    <bpmn:sequenceFlow id="Flow_SEO_5" sourceRef="SEO_EventBased_WaitResponse" targetRef="SEO_Catch_Result"/>
+
+    <bpmn:sequenceFlow id="Flow_SEO_6" sourceRef="SEO_Catch_ClarificationRequest" targetRef="SEO_ClarifyTask"/>
+    <bpmn:sequenceFlow id="Flow_SEO_7" sourceRef="SEO_ClarifyTask" targetRef="SEO_SendTaskUpdate"/>
+    <bpmn:sequenceFlow id="Flow_SEO_8" sourceRef="SEO_SendTaskUpdate" targetRef="SEO_EventBased_WaitResponse"/>
+
+    <bpmn:sequenceFlow id="Flow_SEO_9" sourceRef="SEO_Catch_Result" targetRef="SEO_ReviewResult"/>
+    <bpmn:sequenceFlow id="Flow_SEO_10" sourceRef="SEO_ReviewResult" targetRef="SEO_Gateway_ResultAccepted"/>
+    <bpmn:sequenceFlow id="Flow_SEO_11" sourceRef="SEO_Gateway_ResultAccepted" targetRef="SEO_SendCloseConfirm">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[accepted == true]]></bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_SEO_12" sourceRef="SEO_SendCloseConfirm" targetRef="SEO_End_Closed"/>
+
+    <bpmn:sequenceFlow id="Flow_SEO_13" sourceRef="SEO_Gateway_ResultAccepted" targetRef="SEO_SendReworkRequest">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[accepted == false]]></bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_SEO_14" sourceRef="SEO_SendReworkRequest" targetRef="SEO_EventBased_WaitResponse"/>
+  </bpmn:process>
+
+  <bpmn:process id="Process_SUP" name="Приём и выполнение (SUP)" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_SUP">
+      <bpmn:lane id="Lane_SUP_Main" name="SUP / SEO-менеджер">
+        <bpmn:flowNodeRef>SUP_Start_Message</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>SUP_ReviewTask</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>SUP_Gateway_TaskClear</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>SUP_SendClarificationRequest</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>SUP_Catch_TaskUpdate</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>SUP_ExecuteTask</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>SUP_SendResult</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>SUP_EventBased_WaitAcceptance</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>SUP_Catch_ReworkRequest</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>SUP_Rework</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>SUP_Catch_CloseConfirm</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>SUP_End_Done</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <bpmn:startEvent id="SUP_Start_Message" name="Получена задача от SEO">
+      <bpmn:messageEventDefinition messageRef="Message_TaskToSUP"/>
+    </bpmn:startEvent>
+
+    <bpmn:userTask id="SUP_ReviewTask" name="Проверить полноту ТЗ и приоритезацию"/>
+    <bpmn:exclusiveGateway id="SUP_Gateway_TaskClear" name="Задача понятна и полная?"/>
+
+    <bpmn:sendTask id="SUP_SendClarificationRequest" name="Запросить уточнение" messageRef="Message_ClarificationRequest"/>
+    <bpmn:intermediateCatchEvent id="SUP_Catch_TaskUpdate" name="Получено уточнение">
+      <bpmn:messageEventDefinition messageRef="Message_TaskUpdate"/>
+    </bpmn:intermediateCatchEvent>
+
+    <bpmn:userTask id="SUP_ExecuteTask" name="Выполнить задачу"/>
+    <bpmn:sendTask id="SUP_SendResult" name="Отправить результат в SEO" messageRef="Message_Result"/>
+
+    <bpmn:eventBasedGateway id="SUP_EventBased_WaitAcceptance" name="Ждём решения SEO"/>
+    <bpmn:intermediateCatchEvent id="SUP_Catch_ReworkRequest" name="Получен запрос на доработку">
+      <bpmn:messageEventDefinition messageRef="Message_ReworkRequest"/>
+    </bpmn:intermediateCatchEvent>
+    <bpmn:userTask id="SUP_Rework" name="Доработать результат"/>
+
+    <bpmn:intermediateCatchEvent id="SUP_Catch_CloseConfirm" name="Получено подтверждение закрытия">
+      <bpmn:messageEventDefinition messageRef="Message_CloseConfirm"/>
+    </bpmn:intermediateCatchEvent>
+
+    <bpmn:endEvent id="SUP_End_Done" name="Работа завершена"/>
+
+    <bpmn:sequenceFlow id="Flow_SUP_1" sourceRef="SUP_Start_Message" targetRef="SUP_ReviewTask"/>
+    <bpmn:sequenceFlow id="Flow_SUP_2" sourceRef="SUP_ReviewTask" targetRef="SUP_Gateway_TaskClear"/>
+
+    <bpmn:sequenceFlow id="Flow_SUP_3" sourceRef="SUP_Gateway_TaskClear" targetRef="SUP_SendClarificationRequest">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[clear == false]]></bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_SUP_4" sourceRef="SUP_SendClarificationRequest" targetRef="SUP_Catch_TaskUpdate"/>
+    <bpmn:sequenceFlow id="Flow_SUP_5" sourceRef="SUP_Catch_TaskUpdate" targetRef="SUP_ReviewTask"/>
+
+    <bpmn:sequenceFlow id="Flow_SUP_6" sourceRef="SUP_Gateway_TaskClear" targetRef="SUP_ExecuteTask">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"><![CDATA[clear == true]]></bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_SUP_7" sourceRef="SUP_ExecuteTask" targetRef="SUP_SendResult"/>
+    <bpmn:sequenceFlow id="Flow_SUP_8" sourceRef="SUP_SendResult" targetRef="SUP_EventBased_WaitAcceptance"/>
+    <bpmn:sequenceFlow id="Flow_SUP_9" sourceRef="SUP_EventBased_WaitAcceptance" targetRef="SUP_Catch_ReworkRequest"/>
+    <bpmn:sequenceFlow id="Flow_SUP_10" sourceRef="SUP_EventBased_WaitAcceptance" targetRef="SUP_Catch_CloseConfirm"/>
+
+    <bpmn:sequenceFlow id="Flow_SUP_11" sourceRef="SUP_Catch_ReworkRequest" targetRef="SUP_Rework"/>
+    <bpmn:sequenceFlow id="Flow_SUP_12" sourceRef="SUP_Rework" targetRef="SUP_SendResult"/>
+
+    <bpmn:sequenceFlow id="Flow_SUP_13" sourceRef="SUP_Catch_CloseConfirm" targetRef="SUP_End_Done"/>
+  </bpmn:process>
+
+  <bpmndi:BPMNDiagram id="BPMNDiagram_SEO_SUP">
+    <bpmndi:BPMNPlane id="BPMNPlane_SEO_SUP" bpmnElement="Collaboration_SEO_SUP">
+
+      <bpmndi:BPMNShape id="Shape_Participant_SEO" bpmnElement="Participant_SEO" isHorizontal="true">
+        <dc:Bounds x="80" y="80" width="1400" height="250"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_Lane_SEO_Main" bpmnElement="Lane_SEO_Main" isHorizontal="true">
+        <dc:Bounds x="110" y="80" width="1370" height="250"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Participant_SUP" bpmnElement="Participant_SUP" isHorizontal="true">
+        <dc:Bounds x="80" y="380" width="1400" height="250"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_Lane_SUP_Main" bpmnElement="Lane_SUP_Main" isHorizontal="true">
+        <dc:Bounds x="110" y="380" width="1370" height="250"/>
+      </bpmndi:BPMNShape>
+
+      <!-- SEO nodes -->
+      <bpmndi:BPMNShape id="Shape_SEO_Start" bpmnElement="SEO_Start">
+        <dc:Bounds x="160" y="185" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_SEO_CreateTask" bpmnElement="SEO_CreateTask">
+        <dc:Bounds x="240" y="160" width="210" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_SEO_SendTask" bpmnElement="SEO_SendTask">
+        <dc:Bounds x="490" y="160" width="170" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_SEO_EventBased_WaitResponse" bpmnElement="SEO_EventBased_WaitResponse">
+        <dc:Bounds x="705" y="175" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_SEO_Catch_ClarificationRequest" bpmnElement="SEO_Catch_ClarificationRequest">
+        <dc:Bounds x="820" y="185" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_SEO_ClarifyTask" bpmnElement="SEO_ClarifyTask">
+        <dc:Bounds x="900" y="160" width="210" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_SEO_SendTaskUpdate" bpmnElement="SEO_SendTaskUpdate">
+        <dc:Bounds x="1150" y="160" width="190" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_SEO_Catch_Result" bpmnElement="SEO_Catch_Result">
+        <dc:Bounds x="820" y="265" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_SEO_ReviewResult" bpmnElement="SEO_ReviewResult">
+        <dc:Bounds x="900" y="240" width="210" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_SEO_Gateway_ResultAccepted" bpmnElement="SEO_Gateway_ResultAccepted" isMarkerVisible="true">
+        <dc:Bounds x="1145" y="255" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_SEO_SendReworkRequest" bpmnElement="SEO_SendReworkRequest">
+        <dc:Bounds x="1230" y="240" width="190" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_SEO_SendCloseConfirm" bpmnElement="SEO_SendCloseConfirm">
+        <dc:Bounds x="1230" y="140" width="190" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_SEO_End_Closed" bpmnElement="SEO_End_Closed">
+        <dc:Bounds x="1440" y="162" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+
+      <!-- SUP nodes -->
+      <bpmndi:BPMNShape id="Shape_SUP_Start_Message" bpmnElement="SUP_Start_Message">
+        <dc:Bounds x="160" y="485" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_SUP_ReviewTask" bpmnElement="SUP_ReviewTask">
+        <dc:Bounds x="240" y="460" width="230" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_SUP_Gateway_TaskClear" bpmnElement="SUP_Gateway_TaskClear" isMarkerVisible="true">
+        <dc:Bounds x="510" y="475" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_SUP_SendClarificationRequest" bpmnElement="SUP_SendClarificationRequest">
+        <dc:Bounds x="600" y="460" width="190" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_SUP_Catch_TaskUpdate" bpmnElement="SUP_Catch_TaskUpdate">
+        <dc:Bounds x="835" y="485" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_SUP_ExecuteTask" bpmnElement="SUP_ExecuteTask">
+        <dc:Bounds x="910" y="460" width="180" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_SUP_SendResult" bpmnElement="SUP_SendResult">
+        <dc:Bounds x="1130" y="460" width="190" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_SUP_EventBased_WaitAcceptance" bpmnElement="SUP_EventBased_WaitAcceptance">
+        <dc:Bounds x="1360" y="475" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_SUP_Catch_ReworkRequest" bpmnElement="SUP_Catch_ReworkRequest">
+        <dc:Bounds x="1445" y="430" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_SUP_Rework" bpmnElement="SUP_Rework">
+        <dc:Bounds x="1525" y="405" width="170" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_SUP_Catch_CloseConfirm" bpmnElement="SUP_Catch_CloseConfirm">
+        <dc:Bounds x="1445" y="535" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_SUP_End_Done" bpmnElement="SUP_End_Done">
+        <dc:Bounds x="1525" y="540" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+
+      <!-- SEO sequence flows -->
+      <bpmndi:BPMNEdge id="Edge_Flow_SEO_1" bpmnElement="Flow_SEO_1">
+        <di:waypoint x="196" y="203"/>
+        <di:waypoint x="240" y="200"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_SEO_2" bpmnElement="Flow_SEO_2">
+        <di:waypoint x="450" y="200"/>
+        <di:waypoint x="490" y="200"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_SEO_3" bpmnElement="Flow_SEO_3">
+        <di:waypoint x="660" y="200"/>
+        <di:waypoint x="705" y="200"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_SEO_4" bpmnElement="Flow_SEO_4">
+        <di:waypoint x="755" y="200"/>
+        <di:waypoint x="820" y="203"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_SEO_5" bpmnElement="Flow_SEO_5">
+        <di:waypoint x="730" y="225"/>
+        <di:waypoint x="730" y="283"/>
+        <di:waypoint x="820" y="283"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_SEO_6" bpmnElement="Flow_SEO_6">
+        <di:waypoint x="856" y="203"/>
+        <di:waypoint x="900" y="200"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_SEO_7" bpmnElement="Flow_SEO_7">
+        <di:waypoint x="1110" y="200"/>
+        <di:waypoint x="1150" y="200"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_SEO_8" bpmnElement="Flow_SEO_8">
+        <di:waypoint x="1340" y="200"/>
+        <di:waypoint x="730" y="200"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_SEO_9" bpmnElement="Flow_SEO_9">
+        <di:waypoint x="856" y="283"/>
+        <di:waypoint x="900" y="280"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_SEO_10" bpmnElement="Flow_SEO_10">
+        <di:waypoint x="1110" y="280"/>
+        <di:waypoint x="1145" y="280"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_SEO_11" bpmnElement="Flow_SEO_11">
+        <di:waypoint x="1170" y="255"/>
+        <di:waypoint x="1170" y="180"/>
+        <di:waypoint x="1230" y="180"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_SEO_12" bpmnElement="Flow_SEO_12">
+        <di:waypoint x="1420" y="180"/>
+        <di:waypoint x="1440" y="180"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_SEO_13" bpmnElement="Flow_SEO_13">
+        <di:waypoint x="1195" y="280"/>
+        <di:waypoint x="1230" y="280"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_SEO_14" bpmnElement="Flow_SEO_14">
+        <di:waypoint x="1230" y="280"/>
+        <di:waypoint x="730" y="200"/>
+      </bpmndi:BPMNEdge>
+
+      <!-- SUP sequence flows -->
+      <bpmndi:BPMNEdge id="Edge_Flow_SUP_1" bpmnElement="Flow_SUP_1">
+        <di:waypoint x="196" y="503"/>
+        <di:waypoint x="240" y="500"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_SUP_2" bpmnElement="Flow_SUP_2">
+        <di:waypoint x="470" y="500"/>
+        <di:waypoint x="510" y="500"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_SUP_3" bpmnElement="Flow_SUP_3">
+        <di:waypoint x="560" y="500"/>
+        <di:waypoint x="600" y="500"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_SUP_4" bpmnElement="Flow_SUP_4">
+        <di:waypoint x="790" y="500"/>
+        <di:waypoint x="835" y="503"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_SUP_5" bpmnElement="Flow_SUP_5">
+        <di:waypoint x="835" y="503"/>
+        <di:waypoint x="355" y="503"/>
+        <di:waypoint x="355" y="500"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_SUP_6" bpmnElement="Flow_SUP_6">
+        <di:waypoint x="535" y="525"/>
+        <di:waypoint x="535" y="565"/>
+        <di:waypoint x="1000" y="565"/>
+        <di:waypoint x="1000" y="540"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_SUP_7" bpmnElement="Flow_SUP_7">
+        <di:waypoint x="1090" y="500"/>
+        <di:waypoint x="1130" y="500"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_SUP_8" bpmnElement="Flow_SUP_8">
+        <di:waypoint x="1320" y="500"/>
+        <di:waypoint x="1360" y="500"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_SUP_9" bpmnElement="Flow_SUP_9">
+        <di:waypoint x="1410" y="500"/>
+        <di:waypoint x="1463" y="448"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_SUP_10" bpmnElement="Flow_SUP_10">
+        <di:waypoint x="1410" y="500"/>
+        <di:waypoint x="1463" y="553"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_SUP_11" bpmnElement="Flow_SUP_11">
+        <di:waypoint x="1481" y="448"/>
+        <di:waypoint x="1525" y="445"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_SUP_12" bpmnElement="Flow_SUP_12">
+        <di:waypoint x="1610" y="445"/>
+        <di:waypoint x="1225" y="445"/>
+        <di:waypoint x="1225" y="460"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_SUP_13" bpmnElement="Flow_SUP_13">
+        <di:waypoint x="1481" y="553"/>
+        <di:waypoint x="1525" y="558"/>
+      </bpmndi:BPMNEdge>
+
+      <!-- Message flow edges -->
+      <bpmndi:BPMNEdge id="Edge_MessageFlow_TaskToSUP" bpmnElement="MessageFlow_TaskToSUP">
+        <di:waypoint x="575" y="240"/>
+        <di:waypoint x="178" y="485"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_MessageFlow_ClarificationRequest" bpmnElement="MessageFlow_ClarificationRequest">
+        <di:waypoint x="695" y="460"/>
+        <di:waypoint x="838" y="221"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_MessageFlow_TaskUpdate" bpmnElement="MessageFlow_TaskUpdate">
+        <di:waypoint x="1245" y="160"/>
+        <di:waypoint x="853" y="485"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_MessageFlow_Result" bpmnElement="MessageFlow_Result">
+        <di:waypoint x="1225" y="540"/>
+        <di:waypoint x="838" y="301"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_MessageFlow_ReworkRequest" bpmnElement="MessageFlow_ReworkRequest">
+        <di:waypoint x="1325" y="320"/>
+        <di:waypoint x="1463" y="466"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_MessageFlow_CloseConfirm" bpmnElement="MessageFlow_CloseConfirm">
+        <di:waypoint x="1325" y="140"/>
+        <di:waypoint x="1463" y="535"/>
+      </bpmndi:BPMNEdge>
+
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
