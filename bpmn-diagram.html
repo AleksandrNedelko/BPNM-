@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BPMN - Определение типа и сложности задачи</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .bpmn-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .diagram-header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 24px 32px;
+            text-align: center;
+        }
+
+        .diagram-header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .diagram-header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        /* Pool Container */
+        .pool-container {
+            padding: 24px;
+        }
+
+        .pool {
+            border: 2px solid #34495e;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .pool-header {
+            background: #34495e;
+            color: white;
+            padding: 12px 20px;
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .pool-header .department-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+
+        /* Swimlanes */
+        .swimlane-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .swimlane {
+            display: flex;
+            border-bottom: 1px dashed #bdc3c7;
+            min-height: 200px;
+        }
+
+        .swimlane:last-child {
+            border-bottom: none;
+        }
+
+        .swimlane-label {
+            width: 160px;
+            min-width: 160px;
+            background: #ecf0f1;
+            border-right: 2px solid #34495e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .swimlane-label .role-info {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            transform: rotate(180deg);
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 13px;
+        }
+
+        .swimlane-content {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            position: relative;
+        }
+
+        /* BPMN Elements */
+        
+        /* Events - Start/End */
+        .event {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .event-start {
+            background: #27ae60;
+            border: 3px solid #1e8449;
+            color: white;
+        }
+
+        .event-end {
+            background: #e74c3c;
+            border: 4px solid #c0392b;
+            color: white;
+        }
+
+        .event-intermediate {
+            background: #f39c12;
+            border: 3px solid #d68910;
+            color: white;
+        }
+
+        /* Tasks */
+        .task {
+            background: white;
+            border: 2px solid #3498db;
+            border-radius: 8px;
+            padding: 12px 16px;
+            min-width: 140px;
+            max-width: 200px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(52, 152, 219, 0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .task:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(52, 152, 219, 0.3);
+        }
+
+        .task-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 4px;
+        }
+
+        .task-description {
+            font-size: 10px;
+            color: #7f8c8d;
+        }
+
+        .task-user {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: #667eea;
+        }
+
+        .task-user .task-title {
+            color: white;
+        }
+
+        .task-user .task-description {
+            color: rgba(255,255,255,0.8);
+        }
+
+        .task-service {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            border-color: #11998e;
+        }
+
+        .task-service .task-title {
+            color: white;
+        }
+
+        .task-manual {
+            background: #fff3cd;
+            border-color: #ffc107;
+        }
+
+        /* Gateways */
+        .gateway {
+            width: 50px;
+            height: 50px;
+            background: #f1c40f;
+            border: 2px solid #d4ac0d;
+            transform: rotate(45deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(241, 196, 15, 0.4);
+        }
+
+        .gateway-content {
+            transform: rotate(-45deg);
+            font-size: 18px;
+            font-weight: bold;
+            color: #7d6608;
+        }
+
+        .gateway-exclusive .gateway-content::after {
+            content: "×";
+        }
+
+        .gateway-parallel .gateway-content::after {
+            content: "+";
+        }
+
+        .gateway-inclusive .gateway-content::after {
+            content: "○";
+        }
+
+        /* Data Objects */
+        .data-object {
+            width: 40px;
+            height: 50px;
+            background: white;
+            border: 2px solid #9b59b6;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .data-object::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 12px;
+            height: 12px;
+            background: white;
+            border-left: 2px solid #9b59b6;
+            border-bottom: 2px solid #9b59b6;
+        }
+
+        /* Flow Arrows */
+        .flow-arrow {
+            display: flex;
+            align-items: center;
+            color: #7f8c8d;
+        }
+
+        .flow-arrow::after {
+            content: "→";
+            font-size: 24px;
+            color: #34495e;
+        }
+
+        .flow-arrow-down {
+            transform: rotate(90deg);
+        }
+
+        /* Connector Lines */
+        .connector {
+            height: 2px;
+            background: #34495e;
+            flex: 0 0 30px;
+            position: relative;
+        }
+
+        .connector::after {
+            content: "";
+            position: absolute;
+            right: -6px;
+            top: -4px;
+            border: 5px solid transparent;
+            border-left: 8px solid #34495e;
+        }
+
+        .connector-dashed {
+            background: repeating-linear-gradient(
+                90deg,
+                #34495e,
+                #34495e 5px,
+                transparent 5px,
+                transparent 10px
+            );
+        }
+
+        /* Process Row */
+        .process-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        /* Decision Labels */
+        .decision-label {
+            font-size: 10px;
+            color: #27ae60;
+            font-weight: 600;
+            background: #d5f4e6;
+            padding: 2px 8px;
+            border-radius: 10px;
+            position: absolute;
+        }
+
+        .decision-label.no {
+            color: #e74c3c;
+            background: #fadbd8;
+        }
+
+        /* Annotations */
+        .annotation {
+            background: #ffeaa7;
+            border-left: 4px solid #fdcb6e;
+            padding: 10px 14px;
+            font-size: 11px;
+            max-width: 180px;
+            border-radius: 0 6px 6px 0;
+        }
+
+        /* Legend */
+        .legend {
+            background: #f8f9fa;
+            padding: 20px 24px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .legend h3 {
+            font-size: 14px;
+            color: #2c3e50;
+            margin-bottom: 16px;
+        }
+
+        .legend-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 12px;
+            color: #5d6d7e;
+        }
+
+        .legend-item .event {
+            width: 24px;
+            height: 24px;
+            font-size: 8px;
+        }
+
+        .legend-item .task {
+            min-width: auto;
+            padding: 6px 10px;
+        }
+
+        .legend-item .gateway {
+            width: 24px;
+            height: 24px;
+        }
+
+        .legend-item .gateway-content {
+            font-size: 12px;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .swimlane-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .process-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        /* Message flow between pools */
+        .message-flow {
+            border: 2px dashed #e67e22;
+            background: #fef9e7;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            color: #d35400;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .message-flow::before {
+            content: "✉";
+            font-size: 14px;
+        }
+
+        /* Sub-process container */
+        .subprocess {
+            border: 2px solid #8e44ad;
+            border-radius: 8px;
+            padding: 16px;
+            background: #f5eef8;
+            margin: 10px 0;
+        }
+
+        .subprocess-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #8e44ad;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px dashed #8e44ad;
+        }
+
+        /* Complexity badges */
+        .complexity-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .complexity-simple {
+            background: #d5f4e6;
+            color: #27ae60;
+        }
+
+        .complexity-complex {
+            background: #fadbd8;
+            color: #e74c3c;
+        }
+
+        .complexity-unknown {
+            background: #fef9e7;
+            color: #f39c12;
+        }
+
+        /* Vertical flow section */
+        .vertical-flow {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .vertical-connector {
+            width: 2px;
+            height: 30px;
+            background: #34495e;
+            position: relative;
+        }
+
+        .vertical-connector::after {
+            content: "";
+            position: absolute;
+            bottom: -6px;
+            left: -4px;
+            border: 5px solid transparent;
+            border-top: 8px solid #34495e;
+        }
+    </style>
+</head>
+<body>
+    <div class="bpmn-container">
+        <div class="diagram-header">
+            <h1>Определение типа и сложности задачи</h1>
+            <p>Бизнес-процесс взаимодействия между отделами SEO и SUP</p>
+        </div>
+
+        <div class="pool-container">
+            <!-- Pool 1: SEO Department -->
+            <div class="pool">
+                <div class="pool-header">
+                    <span>Пул: Отдел SEO</span>
+                    <span class="department-badge">Постановщик задач</span>
+                </div>
+                <div class="swimlane-container">
+                    <!-- Swimlane: SEO-специалист -->
+                    <div class="swimlane">
+                        <div class="swimlane-label">
+                            <div class="role-info">SEO-специалист</div>
+                        </div>
+                        <div class="swimlane-content">
+                            <div class="process-row">
+                                <div class="event event-start">Start</div>
+                                <div class="connector"></div>
+                                
+                                <div class="task">
+                                    <div class="task-title">Определение типа задачи</div>
+                                    <div class="task-description">SEO-задача</div>
+                                </div>
+                                <div class="connector"></div>
+
+                                <div class="gateway gateway-exclusive">
+                                    <div class="gateway-content"></div>
+                                </div>
+                                <div class="connector"></div>
+
+                                <div class="task">
+                                    <div class="task-title">Локализация задачи</div>
+                                    <div class="task-description">Определение скоупа</div>
+                                </div>
+                                <div class="connector"></div>
+
+                                <div class="task">
+                                    <div class="task-title">Формирование задачи</div>
+                                    <div class="task-description">Описание требований</div>
+                                </div>
+                                <div class="connector"></div>
+
+                                <div class="task">
+                                    <div class="task-title">Создание связей</div>
+                                    <div class="task-description">Оспива M</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Swimlane: SEO-менеджер -->
+                    <div class="swimlane">
+                        <div class="swimlane-label">
+                            <div class="role-info">SEO-менеджер</div>
+                        </div>
+                        <div class="swimlane-content">
+                            <div class="process-row">
+                                <div class="task task-user">
+                                    <div class="task-title">Проверка задачи</div>
+                                    <div class="task-description">Валидация данных</div>
+                                </div>
+                                <div class="connector"></div>
+
+                                <div class="gateway gateway-exclusive">
+                                    <div class="gateway-content"></div>
+                                </div>
+                                <div class="connector"></div>
+
+                                <div style="display: flex; flex-direction: column; gap: 10px;">
+                                    <span class="complexity-badge complexity-simple">Простая</span>
+                                    <span class="complexity-badge complexity-complex">Сложная</span>
+                                    <span class="complexity-badge complexity-unknown">Не знаю</span>
+                                </div>
+                                <div class="connector"></div>
+
+                                <div class="annotation">
+                                    Определение сложности задачи влияет на маршрутизацию
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Message Flow indicator -->
+            <div style="display: flex; justify-content: center; padding: 10px;">
+                <div class="message-flow">Передача задачи в работу SUP/SEO-менеджеру</div>
+            </div>
+
+            <!-- Pool 2: SUP Department -->
+            <div class="pool">
+                <div class="pool-header">
+                    <span>Пул: Отдел SUP</span>
+                    <span class="department-badge">Принимающая сторона</span>
+                </div>
+                <div class="swimlane-container">
+                    <!-- Swimlane: SUP/SEO-менеджер -->
+                    <div class="swimlane">
+                        <div class="swimlane-label">
+                            <div class="role-info">SUP/SEO-менеджер</div>
+                        </div>
+                        <div class="swimlane-content">
+                            <div class="process-row">
+                                <div class="task task-service">
+                                    <div class="task-title">Принятие задачи</div>
+                                    <div class="task-description">Получение из очереди</div>
+                                </div>
+                                <div class="connector"></div>
+
+                                <div class="gateway gateway-exclusive">
+                                    <div class="gateway-content"></div>
+                                </div>
+                                <div class="connector"></div>
+
+                                <div class="subprocess">
+                                    <div class="subprocess-title">Обработка по сложности</div>
+                                    <div class="process-row">
+                                        <div class="task">
+                                            <div class="task-title">Простая задача</div>
+                                            <div class="task-description">Быстрое выполнение</div>
+                                        </div>
+                                        <div class="task task-manual">
+                                            <div class="task-title">Сложная задача</div>
+                                            <div class="task-description">Детальный анализ</div>
+                                        </div>
+                                        <div class="task">
+                                            <div class="task-title">Оценка сложности</div>
+                                            <div class="task-description">При "Не знаю"</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="connector"></div>
+
+                                <div class="gateway gateway-exclusive">
+                                    <div class="gateway-content"></div>
+                                </div>
+                                <div class="connector"></div>
+
+                                <div class="task task-service">
+                                    <div class="task-title">Выполнение задачи</div>
+                                    <div class="task-description">Реализация</div>
+                                </div>
+                                <div class="connector"></div>
+
+                                <div class="gateway gateway-exclusive">
+                                    <div class="gateway-content"></div>
+                                </div>
+                                <div class="connector"></div>
+
+                                <div class="task">
+                                    <div class="task-title">Завершение</div>
+                                    <div class="task-description">Отчёт о выполнении</div>
+                                </div>
+                                <div class="connector"></div>
+
+                                <div class="event event-end">End</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="legend">
+            <h3>Легенда BPMN</h3>
+            <div class="legend-items">
+                <div class="legend-item">
+                    <div class="event event-start"></div>
+                    <span>Начальное событие</span>
+                </div>
+                <div class="legend-item">
+                    <div class="event event-end"></div>
+                    <span>Конечное событие</span>
+                </div>
+                <div class="legend-item">
+                    <div class="task" style="min-width: auto; padding: 6px 10px;">
+                        <div class="task-title" style="margin: 0;">Задача</div>
+                    </div>
+                    <span>Действие/Задача</span>
+                </div>
+                <div class="legend-item">
+                    <div class="gateway gateway-exclusive" style="width: 24px; height: 24px;">
+                        <div class="gateway-content" style="font-size: 12px;"></div>
+                    </div>
+                    <span>Эксклюзивный шлюз (XOR)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="connector" style="width: 40px;"></div>
+                    <span>Поток управления</span>
+                </div>
+                <div class="legend-item">
+                    <div class="message-flow" style="padding: 4px 8px; font-size: 10px;">✉</div>
+                    <span>Поток сообщений</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
