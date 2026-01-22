@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>BPMN — Определение типа и сложности SEO-задачи</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="page">
+      <header class="page__header">
+        <h1 class="page__title">BPMN: Определение типа и сложности SEO‑задачи</h1>
+        <p class="page__subtitle">
+          Постановщик: <strong>SEO‑менеджер / SEO‑специалист</strong> (отдел SEO). Принимающая сторона:
+          <strong>SUP / SEO‑менеджер</strong> (отдел SUP).
+        </p>
+      </header>
+
+      <section class="bpmn" aria-label="BPMN диаграмма">
+        <div class="bpmn__pool-title">Процесс: Определение типа и сложности задачи</div>
+
+        <div class="bpmn__lanes">
+          <!-- Lane: SEO -->
+          <div class="lane lane--seo">
+            <div class="lane__title">
+              <div class="lane__title-main">Отдел SEO</div>
+              <div class="lane__title-sub">Постановщик: SEO‑менеджер / SEO‑специалист</div>
+            </div>
+            <div class="lane__grid" role="group" aria-label="Дорожка Отдел SEO">
+              <div class="node node--event node--start" style="--col: 1; --row: 1" aria-label="Начало">
+                Начало
+              </div>
+
+              <div class="node node--task" style="--col: 2; --row: 1">
+                Собрать вводные<br />
+                и требования
+              </div>
+
+              <div class="node node--task" style="--col: 3; --row: 1">Определить тип задачи</div>
+
+              <div class="node node--gateway" style="--col: 4; --row: 1">
+                <div class="node__gateway-text">Оценить сложность</div>
+              </div>
+
+              <div class="node node--task" style="--col: 5; --row: 1">
+                Заполнить шаблон<br />
+                постановки
+              </div>
+
+              <div class="node node--event node--message node--throw" style="--col: 6; --row: 1">
+                Отправить<br />
+                в SUP
+              </div>
+
+              <div class="node node--task" style="--col: 5; --row: 2">
+                Доработать / уточнить<br />
+                постановку
+              </div>
+
+              <div class="node node--event node--message node--throw" style="--col: 6; --row: 2">
+                Отправить<br />
+                уточнение
+              </div>
+            </div>
+          </div>
+
+          <!-- Lane: SUP -->
+          <div class="lane lane--sup">
+            <div class="lane__title">
+              <div class="lane__title-main">Отдел SUP</div>
+              <div class="lane__title-sub">Приёмка: SUP / SEO‑менеджер</div>
+            </div>
+            <div class="lane__grid" role="group" aria-label="Дорожка Отдел SUP">
+              <div class="node node--event node--message node--catch" style="--col: 6; --row: 1">
+                Получить<br />
+                задачу
+              </div>
+
+              <div class="node node--task" style="--col: 7; --row: 1">
+                Проверить полноту<br />
+                и корректность
+              </div>
+
+              <div class="node node--gateway" style="--col: 8; --row: 1">
+                <div class="node__gateway-text">Данных достаточно?</div>
+              </div>
+
+              <div class="node node--task" style="--col: 9; --row: 1">
+                Создать задачу<br />
+                в Jira (шаблон)
+              </div>
+
+              <div class="node node--event node--end" style="--col: 10; --row: 1">Готово</div>
+
+              <div class="node node--task" style="--col: 8; --row: 2">
+                Запросить уточнение<br />
+                у SEO
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SVG overlay: flows (sequence + message) -->
+        <svg
+          class="bpmn__flows"
+          viewBox="0 0 2420 570"
+          width="2420"
+          height="570"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <defs>
+            <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+              <path d="M 0 0 L 12 6 L 0 12 z" fill="currentColor" />
+            </marker>
+            <marker id="arrow-open" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto">
+              <path d="M 1 1 L 13 7 L 1 13" fill="none" stroke="currentColor" stroke-width="2" />
+            </marker>
+          </defs>
+
+          <!-- SEO sequence flows (row 1) -->
+          <path class="flow flow--seq" d="M 352 115 L 465 115" marker-end="url(#arrow)" />
+          <path class="flow flow--seq" d="M 635 115 L 685 115" marker-end="url(#arrow)" />
+          <path class="flow flow--seq" d="M 855 115 L 945 115" marker-end="url(#arrow)" />
+          <path class="flow flow--seq" d="M 1035 115 L 1125 115" marker-end="url(#arrow)" />
+          <path class="flow flow--seq" d="M 1295 115 L 1408 115" marker-end="url(#arrow)" />
+
+          <!-- Message flow: SEO -> SUP (send/receive) -->
+          <path class="flow flow--msg" d="M 1430 137 L 1430 353" marker-end="url(#arrow-open)" />
+
+          <!-- SUP sequence flows (row 1) -->
+          <path class="flow flow--seq" d="M 1452 375 L 1565 375" marker-end="url(#arrow)" />
+          <path class="flow flow--seq" d="M 1735 375 L 1825 375" marker-end="url(#arrow)" />
+
+          <!-- SUP: Gateway YES -> Create Jira -> End -->
+          <path class="flow flow--seq" d="M 1915 375 L 2005 375" marker-end="url(#arrow)" />
+          <path class="flow flow--seq" d="M 2175 375 L 2288 375" marker-end="url(#arrow)" />
+
+          <!-- SUP: Gateway NO -> request clarification (row 2) -->
+          <path class="flow flow--seq" d="M 1870 420 L 1870 470" marker-end="url(#arrow)" />
+
+          <!-- Message flow: SUP request -> SEO rework (orthogonal dashed) -->
+          <path class="flow flow--msg" d="M 1785 505 L 1210 505 L 1210 280" marker-end="url(#arrow-open)" />
+
+          <!-- SEO rework -> send clarification (row 2) -->
+          <path class="flow flow--seq" d="M 1295 245 L 1408 245" marker-end="url(#arrow)" />
+
+          <!-- Message flow: SEO clarification -> SUP receive (loop) -->
+          <path class="flow flow--msg" d="M 1430 267 L 1430 353" marker-end="url(#arrow-open)" />
+
+          <!-- Labels -->
+          <text class="flow-label" x="1930" y="365">да</text>
+          <text class="flow-label" x="1860" y="455">нет</text>
+        </svg>
+      </section>
+
+      <section class="notes">
+        <h2 class="notes__title">Как править под ваш процесс</h2>
+        <ul class="notes__list">
+          <li>
+            Узлы лежат в дорожках `.lane__grid`. Позиция задаётся через inline‑переменные
+            <code>--col</code> и <code>--row</code>.
+          </li>
+          <li>
+            Стрелки находятся в SVG `.bpmn__flows`. Для sequence‑flow используется класс
+            <code>.flow--seq</code>, для message‑flow — <code>.flow--msg</code>.
+          </li>
+          <li>
+            Если захотите «честный» BPMN 2.0 XML (для Camunda / bpmn.io), можно будет на основе этой
+            логики сгенерировать и XML.
+          </li>
+        </ul>
+      </section>
+    </main>
+  </body>
+</html>
