@@ -1,0 +1,299 @@
+/* BPMN template styles (HTML + SVG) */
+
+:root {
+  --bg: #0b1220;
+  --panel: #0f1b33;
+  --panel-2: #0c1730;
+  --text: #e7ecf5;
+  --muted: #b9c4da;
+  --stroke: #2a3a5d;
+  --stroke-2: #3a4d78;
+  --accent: #6ee7ff;
+  --task: #eaf2ff;
+  --task-2: #f5f7ff;
+  --task-text: #0a1730;
+  --gw: #fff4cc;
+  --evt: #ffffff;
+  --msg: #5eead4;
+  --seq: #122a55;
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, "Noto Sans", "Liberation Sans", sans-serif;
+  color: var(--text);
+  background: radial-gradient(1200px 700px at 20% 10%, #132a52 0%, var(--bg) 55%) fixed;
+}
+
+.page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 28px 18px 40px;
+}
+
+.header {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+@media (min-width: 980px) {
+  .header {
+    grid-template-columns: 1.1fr 0.9fr;
+    align-items: start;
+  }
+}
+
+.title {
+  margin: 0 0 6px;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+  line-height: 1.18;
+  font-size: 22px;
+}
+
+.subtitle {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.55;
+  font-size: 14px;
+}
+
+.meta {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.03));
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 14px;
+  padding: 12px 12px;
+  box-shadow: var(--shadow);
+}
+
+.meta__row {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 10px;
+  align-items: baseline;
+  padding: 6px 4px;
+}
+
+.meta__k {
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.meta__v {
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.canvas {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.03));
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  padding: 14px;
+  box-shadow: var(--shadow);
+}
+
+.bpmn {
+  width: 100%;
+  height: auto;
+  display: block;
+  background: #ffffff;
+  border-radius: 12px;
+}
+
+/* SVG shapes */
+.pool rect {
+  fill: transparent;
+  stroke: var(--stroke);
+  stroke-width: 2;
+}
+
+.pool__title {
+  font-size: 14px;
+  font-weight: 700;
+  fill: #0a1730;
+}
+
+.lane {
+  stroke: transparent;
+}
+
+.lane--seo {
+  fill: #f7fbff;
+}
+
+.lane--sup {
+  fill: #fbfbff;
+}
+
+.lane__divider {
+  stroke: var(--stroke);
+  stroke-width: 2;
+}
+
+.lane__label rect {
+  fill: #eef4ff;
+  stroke: var(--stroke);
+  stroke-width: 2;
+}
+
+.lane__label text {
+  font-size: 14px;
+  font-weight: 800;
+  fill: #0a1730;
+  text-anchor: middle;
+}
+
+.lane__hint {
+  font-weight: 600;
+  font-size: 12px;
+  fill: #3a4d78;
+}
+
+.task rect {
+  fill: var(--task);
+  stroke: var(--seq);
+  stroke-width: 2;
+}
+
+.task--secondary rect {
+  fill: var(--task-2);
+  stroke: #4b6baf;
+  stroke-dasharray: 6 5;
+}
+
+.gateway polygon {
+  fill: var(--gw);
+  stroke: #8a6a00;
+  stroke-width: 2;
+}
+
+.event circle {
+  fill: var(--evt);
+  stroke: #0f2a57;
+  stroke-width: 2;
+}
+
+.event--end circle {
+  stroke-width: 2.5;
+}
+
+.event__inner {
+  fill: none;
+  stroke: #0f2a57;
+  stroke-width: 2.5;
+}
+
+.label {
+  fill: var(--task-text);
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.edge-label {
+  fill: #0a1730;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.edge-label--msg {
+  fill: #0b3d44;
+  font-weight: 800;
+}
+
+/* Flows */
+.flow {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.flow--seq {
+  stroke: var(--seq);
+  stroke-width: 2.3;
+}
+
+.flow--msg {
+  stroke: #0ea5a5;
+  stroke-width: 2.2;
+  stroke-dasharray: 7 6;
+}
+
+.arrow-fill {
+  fill: var(--seq);
+}
+
+.arrow-open {
+  fill: none;
+  stroke: #0ea5a5;
+  stroke-width: 2.2;
+}
+
+/* Legend */
+.legend rect {
+  fill: rgba(234, 242, 255, 0.85);
+  stroke: rgba(18, 42, 85, 0.4);
+  stroke-width: 1.5;
+}
+
+.legend__text {
+  fill: #0a1730;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.legend__task {
+  fill: var(--task);
+  stroke: var(--seq);
+  stroke-width: 2;
+}
+
+.legend__gw {
+  fill: var(--gw);
+  stroke: #8a6a00;
+  stroke-width: 2;
+}
+
+.legend__evt {
+  fill: var(--evt);
+  stroke: #0f2a57;
+  stroke-width: 2;
+}
+
+.footer {
+  margin-top: 12px;
+}
+
+.footer__note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+@media print {
+  body {
+    background: #fff;
+    color: #000;
+  }
+  .meta,
+  .canvas {
+    box-shadow: none;
+  }
+}
+

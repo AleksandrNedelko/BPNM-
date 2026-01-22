@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>BPMN — SEO ⇄ SUP (шаблон)</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="page">
+      <header class="header">
+        <div>
+          <h1 class="title">Бизнес‑процесс (BPMN): постановка задачи SEO → SUP</h1>
+          <p class="subtitle">
+            Шаблон визуального представления: 1 pool (Процесс), 2 lanes (SEO / SUP), sequence flow + message flow.
+            Подписи шагов и ветки легко менять прямо в SVG.
+          </p>
+        </div>
+        <div class="meta">
+          <div class="meta__row"><span class="meta__k">Постановщик</span><span class="meta__v">SEO‑менеджер / SEO‑специалист (отдел SEO)</span></div>
+          <div class="meta__row"><span class="meta__k">Принимающая сторона</span><span class="meta__v">SUP / SEO‑менеджер (отдел SUP)</span></div>
+        </div>
+      </header>
+
+      <section class="canvas" aria-label="Диаграмма BPMN">
+        <!--
+          Как править шаги:
+          - Меняйте текст в <text> внутри соответствующего блока.
+          - При необходимости двигайте блоки (x/y) и линии (d/points).
+          - Для новых задач используйте группу <g class="task"> по аналогии.
+        -->
+        <svg class="bpmn" viewBox="0 0 1600 760" role="img" aria-label="BPMN диаграмма: SEO ⇄ SUP">
+          <defs>
+            <!-- Arrow markers -->
+            <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" class="arrow-fill" />
+            </marker>
+            <marker id="arrow-open" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" orient="auto">
+              <path d="M 1 1 L 9 5 L 1 9" class="arrow-open" />
+            </marker>
+          </defs>
+
+          <!-- Pool -->
+          <g class="pool">
+            <rect x="40" y="70" width="1520" height="640" rx="10" />
+            <text x="60" y="55" class="pool__title">POOL: «Постановка и выполнение SEO‑задачи»</text>
+          </g>
+
+          <!-- Lanes -->
+          <g class="lanes">
+            <rect x="40" y="70" width="1520" height="320" class="lane lane--seo" rx="10" />
+            <rect x="40" y="390" width="1520" height="320" class="lane lane--sup" rx="10" />
+            <line x1="40" y1="390" x2="1560" y2="390" class="lane__divider" />
+
+            <g class="lane__label">
+              <rect x="40" y="70" width="180" height="320" rx="10" />
+              <text x="130" y="230">LANE: SEO</text>
+              <text x="130" y="260" class="lane__hint">Постановщик</text>
+            </g>
+            <g class="lane__label">
+              <rect x="40" y="390" width="180" height="320" rx="10" />
+              <text x="130" y="550">LANE: SUP</text>
+              <text x="130" y="580" class="lane__hint">Исполнитель</text>
+            </g>
+          </g>
+
+          <!-- SEO lane nodes -->
+          <!-- Start event -->
+          <g class="event event--start">
+            <circle cx="280" cy="230" r="22" />
+            <text x="280" y="270" text-anchor="middle" class="label">Старт</text>
+          </g>
+
+          <!-- Task: сформировать -->
+          <g class="task">
+            <rect x="340" y="190" width="220" height="80" rx="12" />
+            <text x="450" y="222" text-anchor="middle" class="label">
+              <tspan x="450" dy="0">Сформировать</tspan>
+              <tspan x="450" dy="18">задачу / ТЗ</tspan>
+            </text>
+          </g>
+
+          <!-- Gateway: полнота -->
+          <g class="gateway">
+            <polygon points="640,230 680,190 720,230 680,270" />
+            <text x="680" y="300" text-anchor="middle" class="label">ТЗ полное?</text>
+          </g>
+
+          <!-- Task: уточнить требования -->
+          <g class="task task--secondary">
+            <rect x="560" y="110" width="240" height="70" rx="12" />
+            <text x="680" y="140" text-anchor="middle" class="label">
+              <tspan x="680" dy="0">Уточнить</tspan>
+              <tspan x="680" dy="18">требования</tspan>
+            </text>
+          </g>
+
+          <!-- Task: передать в SUP -->
+          <g class="task">
+            <rect x="780" y="190" width="260" height="80" rx="12" />
+            <text x="910" y="222" text-anchor="middle" class="label">
+              <tspan x="910" dy="0">Передать задачу</tspan>
+              <tspan x="910" dy="18">в SUP</tspan>
+            </text>
+          </g>
+
+          <!-- SUP lane nodes -->
+          <!-- Task: принять задачу -->
+          <g class="task" transform="translate(0, 320)">
+            <rect x="340" y="190" width="220" height="80" rx="12" />
+            <text x="450" y="222" text-anchor="middle" class="label">
+              <tspan x="450" dy="0">Принять</tspan>
+              <tspan x="450" dy="18">задачу</tspan>
+            </text>
+          </g>
+
+          <!-- Task: оценить -->
+          <g class="task" transform="translate(0, 320)">
+            <rect x="600" y="190" width="280" height="80" rx="12" />
+            <text x="740" y="213" text-anchor="middle" class="label">
+              <tspan x="740" dy="0">Оценить трудоёмкость,</tspan>
+              <tspan x="740" dy="18">сроки и риски</tspan>
+            </text>
+          </g>
+
+          <!-- Gateway: достаточно данных -->
+          <g class="gateway" transform="translate(0, 320)">
+            <polygon points="960,230 1000,190 1040,230 1000,270" />
+            <text x="1000" y="300" text-anchor="middle" class="label">Данных хватает?</text>
+          </g>
+
+          <!-- Task: запросить уточнения -->
+          <g class="task task--secondary" transform="translate(0, 320)">
+            <rect x="880" y="110" width="240" height="70" rx="12" />
+            <text x="1000" y="140" text-anchor="middle" class="label">
+              <tspan x="1000" dy="0">Запросить</tspan>
+              <tspan x="1000" dy="18">уточнения</tspan>
+            </text>
+          </g>
+
+          <!-- Task: выполнить -->
+          <g class="task" transform="translate(0, 320)">
+            <rect x="1120" y="190" width="260" height="80" rx="12" />
+            <text x="1250" y="213" text-anchor="middle" class="label">
+              <tspan x="1250" dy="0">Выполнить</tspan>
+              <tspan x="1250" dy="18">работы</tspan>
+            </text>
+          </g>
+
+          <!-- Task: отправить результат -->
+          <g class="task" transform="translate(0, 320)">
+            <rect x="1400" y="190" width="140" height="80" rx="12" />
+            <text x="1470" y="213" text-anchor="middle" class="label">
+              <tspan x="1470" dy="0">Отправить</tspan>
+              <tspan x="1470" dy="18">результат</tspan>
+            </text>
+          </g>
+
+          <!-- Back in SEO lane: принять результат -->
+          <g class="task">
+            <rect x="1120" y="190" width="260" height="80" rx="12" />
+            <text x="1250" y="222" text-anchor="middle" class="label">
+              <tspan x="1250" dy="0">Принять результат</tspan>
+              <tspan x="1250" dy="18">и проверить</tspan>
+            </text>
+          </g>
+
+          <!-- Gateway: нужны доработки -->
+          <g class="gateway">
+            <polygon points="1460,230 1500,190 1540,230 1500,270" />
+            <text x="1500" y="300" text-anchor="middle" class="label">Нужны доработки?</text>
+          </g>
+
+          <!-- End event -->
+          <g class="event event--end">
+            <circle cx="1500" cy="150" r="22" />
+            <circle cx="1500" cy="150" r="18" class="event__inner" />
+            <text x="1500" y="110" text-anchor="middle" class="label">Финиш</text>
+          </g>
+
+          <!-- Flows (SEO sequence) -->
+          <path class="flow flow--seq" marker-end="url(#arrow)" d="M 302 230 L 340 230" />
+          <path class="flow flow--seq" marker-end="url(#arrow)" d="M 560 230 L 640 230" />
+          <path class="flow flow--seq" marker-end="url(#arrow)" d="M 720 230 L 780 230" />
+
+          <!-- YES/NO labels: gateway 'ТЗ полное?' -->
+          <text class="edge-label" x="735" y="220">да</text>
+          <text class="edge-label" x="690" y="188">нет</text>
+
+          <!-- 'нет' branch: gateway -> уточнить -> пересобрать ТЗ -->
+          <path class="flow flow--seq" marker-end="url(#arrow)" d="M 680 190 L 680 180" />
+          <path class="flow flow--seq" marker-end="url(#arrow)" d="M 680 180 L 680 90 L 450 90 L 450 190" />
+
+          <!-- После передачи задачи SEO ожидает результат (логически) -->
+          <path class="flow flow--seq" marker-end="url(#arrow)" d="M 1040 230 L 1120 230" />
+
+          <!-- Message flow: Передать задачу -> Принять задачу (SUP) -->
+          <path class="flow flow--msg" marker-end="url(#arrow-open)" d="M 1040 230 C 1180 230, 1180 550, 340 550" />
+          <text class="edge-label edge-label--msg" x="1125" y="410">передача задачи</text>
+
+          <!-- SUP sequence flows -->
+          <path class="flow flow--seq" marker-end="url(#arrow)" d="M 560 550 L 600 550" />
+          <path class="flow flow--seq" marker-end="url(#arrow)" d="M 880 550 L 960 550" />
+          <path class="flow flow--seq" marker-end="url(#arrow)" d="M 1040 550 L 1120 550" />
+          <path class="flow flow--seq" marker-end="url(#arrow)" d="M 1380 550 L 1400 550" />
+
+          <!-- SUP gateway branches (данных хватает?) -->
+          <text class="edge-label" x="1055" y="540">да</text>
+          <text class="edge-label" x="1010" y="495">нет</text>
+
+          <!-- 'нет' -> запросить уточнения -->
+          <path class="flow flow--seq" marker-end="url(#arrow)" d="M 1000 510 L 1000 500" />
+          <!-- после уточнений: вернуться к оценке -->
+          <path class="flow flow--seq" marker-end="url(#arrow)" d="M 880 465 L 740 465 L 740 510" />
+
+          <!-- Message flow: Запросить уточнения -> Уточнить требования -->
+          <path class="flow flow--msg" marker-end="url(#arrow-open)" d="M 880 465 C 820 430, 780 400, 720 360 C 700 345, 690 315, 680 270" />
+
+          <!-- Message flow: Отправить результат -> Принять результат -->
+          <path class="flow flow--msg" marker-end="url(#arrow-open)" d="M 1540 550 C 1540 420, 1460 330, 1360 285 C 1300 258, 1230 245, 1120 230" />
+          <text class="edge-label edge-label--msg" x="1495" y="365">результат</text>
+
+          <!-- SEO sequence: принять результат -> gateway -->
+          <path class="flow flow--seq" marker-end="url(#arrow)" d="M 1380 230 L 1460 230" />
+
+          <!-- Gateway branches: нужны доработки? -->
+          <text class="edge-label" x="1547" y="220">нет</text>
+          <text class="edge-label" x="1490" y="320">да</text>
+          <path class="flow flow--seq" marker-end="url(#arrow)" d="M 1540 230 L 1540 172 L 1500 172" />
+
+          <!-- 'да' branch: запросить доработки (message) -> SUP выполнить (loop) -->
+          <path class="flow flow--msg" marker-end="url(#arrow-open)" d="M 1500 270 C 1500 360, 1420 430, 1320 480 C 1270 505, 1210 525, 1120 550" />
+          <text class="edge-label edge-label--msg" x="1460" y="430">доработка</text>
+
+          <!-- Legend -->
+          <g class="legend">
+            <rect x="240" y="600" width="560" height="92" rx="10" />
+            <g transform="translate(260, 625)">
+              <line x1="0" y1="0" x2="70" y2="0" class="flow flow--seq" marker-end="url(#arrow)" />
+              <text x="82" y="5" class="legend__text">Sequence flow</text>
+            </g>
+            <g transform="translate(260, 655)">
+              <line x1="0" y1="0" x2="70" y2="0" class="flow flow--msg" marker-end="url(#arrow-open)" />
+              <text x="82" y="5" class="legend__text">Message flow</text>
+            </g>
+            <g transform="translate(430, 630)">
+              <rect x="0" y="-16" width="86" height="32" rx="10" class="legend__task" />
+              <text x="98" y="5" class="legend__text">Task</text>
+            </g>
+            <g transform="translate(430, 662)">
+              <polygon points="10,0 26,-16 42,0 26,16" class="legend__gw" />
+              <text x="58" y="5" class="legend__text">Gateway</text>
+            </g>
+            <g transform="translate(590, 630)">
+              <circle cx="16" cy="0" r="12" class="legend__evt" />
+              <text x="40" y="5" class="legend__text">Start/End</text>
+            </g>
+          </g>
+        </svg>
+      </section>
+
+      <footer class="footer">
+        <p class="footer__note">
+          Примечание: это именно <strong>шаблон</strong> BPMN-визуализации (верстка), не «исполняемая» BPMN-модель.
+          Если дадите точные шаги/ветвления вашего процесса, я адаптирую диаграмму под них.
+        </p>
+      </footer>
+    </main>
+  </body>
+</html>
