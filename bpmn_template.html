@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BPMN Диаграмма: Постановка задачи SEO -> SUP</title>
+    <style>
+        :root {
+            --lane-bg: #fff;
+            --lane-header-bg: #f4f4f4;
+            --border-color: #333;
+            --event-color: #87CD62; /* Green for start */
+            --end-event-color: #E87B7B; /* Red for end */
+            --task-bg: #E3F2FD;
+            --task-border: #1E88E5;
+            --gateway-bg: #FFF9C4;
+            --gateway-border: #FBC02D;
+            --connector-color: #555;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f9f9f9;
+            padding: 20px;
+        }
+
+        .bpmn-container {
+            display: grid;
+            grid-template-rows: auto auto;
+            border: 2px solid var(--border-color);
+            background: var(--lane-bg);
+            position: relative;
+            overflow-x: auto;
+            min-width: 800px;
+        }
+
+        /* Lanes */
+        .lane {
+            display: flex;
+            min-height: 200px;
+            border-bottom: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .lane:last-child {
+            border-bottom: none;
+        }
+
+        .lane-header {
+            width: 50px;
+            background: var(--lane-header-bg);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            writing-mode: vertical-rl;
+            transform: rotate(180deg);
+            font-weight: bold;
+            padding: 10px 0;
+            text-transform: uppercase;
+            font-size: 0.9em;
+        }
+
+        .lane-content {
+            flex-grow: 1;
+            position: relative;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Elements */
+        .element {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: 0.85em;
+            z-index: 2;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .element:hover {
+            transform: scale(1.05);
+        }
+
+        /* Start/End Events */
+        .event {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid;
+            background: #fff;
+        }
+
+        .event.start {
+            border-color: var(--event-color);
+            background-color: #F1F8E9;
+        }
+
+        .event.end {
+            border-color: var(--end-event-color);
+            border-width: 4px;
+            background-color: #FFEBEE;
+        }
+
+        /* Tasks */
+        .task {
+            width: 120px;
+            height: 70px;
+            border: 2px solid var(--task-border);
+            border-radius: 8px;
+            background: var(--task-bg);
+            padding: 5px;
+        }
+
+        /* Gateways */
+        .gateway {
+            width: 60px;
+            height: 60px;
+            background: var(--gateway-bg);
+            border: 2px solid var(--gateway-border);
+            transform: rotate(45deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .gateway span {
+            transform: rotate(-45deg);
+            font-size: 1.5em;
+            color: var(--gateway-border);
+        }
+        
+        .gateway-label {
+            position: absolute;
+            width: 120px;
+            text-align: center;
+            top: -30px; /* Position above rotated diamond */
+            transform: rotate(-45deg); /* Counteract parent rotation */
+            left: -30px;
+            font-size: 0.8em;
+        }
+
+        /* Connectors (Simplified using SVG lines or divs) */
+        .connector {
+            position: absolute;
+            background: var(--connector-color);
+            height: 2px;
+            z-index: 1;
+            transform-origin: 0 50%;
+        }
+
+        .arrow-head {
+            position: absolute;
+            right: -5px;
+            top: -4px;
+            width: 0; 
+            height: 0; 
+            border-top: 5px solid transparent;
+            border-bottom: 5px solid transparent;
+            border-left: 8px solid var(--connector-color);
+        }
+
+        /* Specific Positioning (Manual Layout for Template) */
+        
+        /* Lane 1: SEO */
+        #start-event { top: 80px; left: 50px; }
+        #task-1 { top: 65px; left: 150px; } /* Create Task */
+        
+        /* Lane 2: SUP */
+        #task-2 { top: 65px; left: 150px; } /* Receive Task */
+        #gateway-1 { top: 70px; left: 330px; } /* Validation */
+        #task-3 { top: 65px; left: 450px; } /* Execute */
+        #end-event { top: 80px; left: 630px; } /* End */
+
+        /* Vertical Connector adjustments */
+        /* Note: In a real dynamic tool, these would be calculated. Here we hardcode for the template. */
+        
+        .label {
+            margin-top: 50px;
+            font-weight: bold;
+            color: #444;
+        }
+
+        /* Helper for diagonal/complex lines using SVG */
+        .connections-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        svg line, svg path {
+            stroke: var(--connector-color);
+            stroke-width: 2;
+            fill: none;
+            marker-end: url(#arrow);
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Бизнес-процесс: Постановка задачи (BPMN)</h1>
+    <p>Роли: Постановщик (SEO), Исполнитель (SUP)</p>
+
+    <div class="bpmn-container">
+        
+        <!-- SVG Layer for connections -->
+        <svg class="connections-layer">
+            <defs>
+                <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                    <path d="M0,0 L0,6 L9,3 z" fill="#555" />
+                </marker>
+            </defs>
+
+            <!-- SEO Start to SEO Task -->
+            <path d="M90,100 L150,100" />
+
+            <!-- SEO Task to SUP Task (Vertical flow) -->
+            <path d="M210,135 L210,265" /> 
+
+            <!-- SUP Task to Gateway -->
+            <path d="M270,300 L330,300" />
+
+            <!-- Gateway to Execute (Yes) -->
+            <path d="M390,300 L450,300" />
+            
+            <!-- Gateway back to SEO Task (No - Correction) -->
+            <path d="M360,270 L360,100 L270,100" style="stroke-dasharray: 5,5" />
+            <!-- Note: Manual coordinates for visual template purposes -->
+
+            <!-- Execute to End -->
+            <path d="M570,300 L630,300" />
+        </svg>
+
+        <!-- Lane 1: SEO -->
+        <div class="lane" id="lane-seo">
+            <div class="lane-header">Отдел SEO</div>
+            <div class="lane-content">
+                <div class="element event start" id="start-event" title="Потребность в задаче"></div>
+                
+                <div class="element task" id="task-1">
+                    Сформировать и отправить задачу
+                </div>
+            </div>
+        </div>
+
+        <!-- Lane 2: SUP -->
+        <div class="lane" id="lane-sup">
+            <div class="lane-header">Отдел SUP</div>
+            <div class="lane-content">
+                <div class="element task" id="task-2">
+                    Получить и проанализировать задачу
+                </div>
+
+                <div class="element gateway" id="gateway-1">
+                    <span>?</span>
+                    <div style="transform: rotate(-45deg); font-size: 10px; position: absolute; width: 100px; top: -40px;">Данные корректны?</div>
+                </div>
+
+                <div class="element task" id="task-3">
+                    Выполнить задачу (Настройки/Оптимизация)
+                </div>
+
+                <div class="element event end" id="end-event" title="Задача выполнена"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <div style="margin-top: 20px; font-size: 0.9em; color: #666;">
+        <strong>Легенда:</strong>
+        <ul>
+            <li><span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:#F1F8E9; border:1px solid #87CD62;"></span> Начало процесса</li>
+            <li><span style="display:inline-block; width:10px; height:10px; background:#E3F2FD; border:1px solid #1E88E5;"></span> Задача (Действие)</li>
+            <li><span style="display:inline-block; width:10px; height:10px; transform:rotate(45deg); background:#FFF9C4; border:1px solid #FBC02D; margin:0 5px;"></span> Шлюз (Принятие решения)</li>
+            <li><span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:#FFEBEE; border:2px solid #E87B7B;"></span> Конец процесса</li>
+        </ul>
+    </div>
+
+</body>
+</html>
